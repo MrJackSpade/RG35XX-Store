@@ -1,9 +1,20 @@
-[{
-  "root":"RG35XX.RomDownloader/Release",
-  "files":["RomDownloader"],
-  "name":"Rom Downloader",
-  "description":"Downloads ROMS to the device",
-  "repo":"RG35XX-Downloader",
-  "branch":"main",
-  "author":"MrJackSpade"
-}]
+[
+  {
+    "root": "RG35XX.RomDownloader/Release",
+    "files": [ "RomDownloader" ],
+    "name": "Rom Downloader",
+    "description": "Downloads ROMS to the device",
+    "repo": "RG35XX-Downloader",
+    "branch": "main",
+    "author": "MrJackSpade"
+  },
+  {
+    "root": "Release",
+    "files": [ "DVD" ],
+    "name": "DVD Logo",
+    "description": "Animated DVD Logo",
+    "repo": "RG35XX-DVD",
+    "branch": "main",
+    "author": "MrJackSpade"
+  }
+]
