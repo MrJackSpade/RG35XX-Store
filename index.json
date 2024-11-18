@@ -1,1 +1,8 @@
-
+{
+  "files":["RG35XX.RomDownloader/Release/RomDownloader"],
+  "name":"Rom Downloader",
+  "description":"Downloads ROMS to the device",
+  "repo":"RG35XX-Downloader",
+  "branch":"main",
+  "author":"MrJackSpade"
+}
