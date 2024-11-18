@@ -131,12 +131,170 @@ namespace AppStore
                     {
                         await this.ShowDetails(items[selectedIndex]);
                     }
+
+                    if (key is GamepadKey.UP)
+                    {
+                        selectedIndex--;
+
+                        if (selectedIndex < 0)
+                        {
+                            selectedIndex = items.Count - 1;
+                        }
+                    }
+
+                    if (key is GamepadKey.DOWN)
+                    {
+                        selectedIndex++;
+
+                        if (selectedIndex >= items.Count)
+                        {
+                            selectedIndex = 0;
+                        }
+                    }
+
+                    if (key is GamepadKey.LEFT)
+                    {
+                        selectedIndex -= pageSize;
+
+                        if (selectedIndex < 0)
+                        {
+                            selectedIndex = items.Count - 1;
+                        }
+                    }
+
+                    if (key is GamepadKey.RIGHT)
+                    {
+                        selectedIndex += pageSize;
+
+                        if (selectedIndex >= items.Count)
+                        {
+                            selectedIndex = 0;
+                        }
+                    }
                 } while (true);
             }
             finally
             {
                 _consoleRenderer.AutoFlush = true;
                 _consoleRenderer.Flush();
+            }
+        }
+
+        private async Task Download(string fileName, string fileUrl, string localPath)
+        {
+            _consoleRenderer.WriteLine($"Downloading [{fileName}]...");
+
+            _consoleRenderer.WriteLine("Waiting for response...");
+
+            using MemoryStream memoryStream = new();
+
+            using HttpResponseMessage response = await _httpClient.GetAsync(fileUrl, HttpCompletionOption.ResponseHeadersRead);
+
+            response.EnsureSuccessStatusCode();
+
+            long? totalBytes = response.Content.Headers.ContentLength;
+
+            using Stream contentStream = await response.Content.ReadAsStreamAsync();
+
+            long totalRead = 0L;
+            byte[] buffer = new byte[8192];
+            bool isMoreToRead = true;
+
+            do
+            {
+                int read = await contentStream.ReadAsync(buffer, 0, buffer.Length);
+
+                if (read == 0)
+                {
+                    isMoreToRead = false;
+                    this.ReportProgress(totalRead, totalBytes);
+                    continue;
+                }
+
+                await memoryStream.WriteAsync(buffer, 0, read);
+
+                totalRead += read;
+
+                this.ReportProgress(totalRead, totalBytes);
+            } while (isMoreToRead);
+
+            FileInfo fileInfo = new(localPath);
+
+            if (fileInfo.Exists)
+            {
+                fileInfo.Delete();
+            }
+
+            if (!fileInfo.Directory.Exists)
+            {
+                fileInfo.Directory.Create();
+            }
+
+            using FileStream fileStream = new(localPath, FileMode.Create, FileAccess.Write);
+
+            memoryStream.Seek(0, SeekOrigin.Begin);
+
+            await memoryStream.CopyToAsync(fileStream);
+        }
+
+        private async Task Download(StoreItem storeItem)
+        {
+            string[] filePaths = storeItem.Files.ToArray();
+
+            string[] downloadUrls = storeItem.DownloadUrls.ToArray();
+
+            for (int i = 0; i < filePaths.Length; i++)
+            {
+                string filePath = filePaths[i];
+
+                string downloadUrl = downloadUrls[i];
+
+                string localPath = Path.Combine(_storageProvider.MMC, "Roms", "Apps", filePath);
+
+                await this.Download(filePath, downloadUrl, localPath);
+            }
+
+            _consoleRenderer.WriteLine();
+
+            _consoleRenderer.WriteLine("Download complete! Press any key to continue.", Color.Green, Color.Black);
+
+            _gamePadReader.ClearBuffer();
+
+            _gamePadReader.WaitForInput();
+        }
+
+        private string Enclose(string text)
+        {
+            if (text.Length > _consoleRenderer.Width - 2)
+            {
+                text = text[..(_consoleRenderer.Width - 2)];
+            }
+
+            text = "│" + text.PadRight(_consoleRenderer.Width - 2, ' ') + "│";
+
+            return text;
+        }
+
+        private void ReportProgress(long totalRead, long? totalBytes)
+        {
+            _consoleRenderer.ClearLine(false);
+
+            int progressBarWith = _consoleRenderer.Width - "Progress [ ]".Length;
+
+            if (totalBytes.HasValue)
+            {
+                double progress = (double)totalRead / totalBytes.Value;
+                int bars = (int)(progressBarWith * progress);
+
+                string progressBar = new('#', bars);
+
+                progressBar = progressBar.PadRight(progressBarWith, ' ');
+
+                _consoleRenderer.Write($"Progress [{progressBar}]");
+            }
+            else
+            {
+                _consoleRenderer.Write($"Downloaded {totalRead} bytes");
             }
         }
 
@@ -198,7 +356,8 @@ namespace AppStore
                     {
                         _consoleRenderer.AutoFlush = true;
                         await this.Download(storeItem);
-                    } finally
+                    }
+                    finally
                     {
                         _consoleRenderer.AutoFlush = false;
                     }
@@ -206,127 +365,6 @@ namespace AppStore
                     break;
                 }
             } while (true);
-        }
-
-        private async Task Download(string fileName, string fileUrl, string localPath)
-        {
-            _consoleRenderer.WriteLine($"Downloading [{fileName}]...");
-
-            _consoleRenderer.WriteLine("Waiting for response...");
-
-            using MemoryStream memoryStream = new();
-
-            using HttpResponseMessage response = await _httpClient.GetAsync(fileUrl, HttpCompletionOption.ResponseHeadersRead);
-
-            response.EnsureSuccessStatusCode();
-
-            long? totalBytes = response.Content.Headers.ContentLength;
-
-            using Stream contentStream = await response.Content.ReadAsStreamAsync();
-
-            long totalRead = 0L;
-            byte[] buffer = new byte[8192];
-            bool isMoreToRead = true;
-
-            do
-            {
-                int read = await contentStream.ReadAsync(buffer, 0, buffer.Length);
-
-                if (read == 0)
-                {
-                    isMoreToRead = false;
-                    this.ReportProgress(totalRead, totalBytes);
-                    continue;
-                }
-
-                await memoryStream.WriteAsync(buffer, 0, read);
-
-                totalRead += read;
-
-                this.ReportProgress(totalRead, totalBytes);
-
-            } while (isMoreToRead);
-
-            FileInfo fileInfo = new(localPath);
-
-            if (fileInfo.Exists)
-            {
-                fileInfo.Delete();
-            }
-
-            if (!fileInfo.Directory.Exists)
-            {
-                fileInfo.Directory.Create();
-            }
-
-            using FileStream fileStream = new(localPath, FileMode.Create, FileAccess.Write);
-
-            memoryStream.Seek(0, SeekOrigin.Begin);
-
-            await memoryStream.CopyToAsync(fileStream);
-
-        }
-
-        private void ReportProgress(long totalRead, long? totalBytes)
-        {
-            _consoleRenderer.ClearLine(false);
-
-            int progressBarWith = _consoleRenderer.Width - "Progress [ ]".Length;
-
-            if (totalBytes.HasValue)
-            {
-
-                double progress = (double)totalRead / totalBytes.Value;
-                int bars = (int)(progressBarWith * progress);
-
-                string progressBar = new('#', bars);
-
-                progressBar = progressBar.PadRight(progressBarWith, ' ');
-
-                _consoleRenderer.Write($"Progress [{progressBar}]");
-            }
-            else
-            {
-                _consoleRenderer.Write($"Downloaded {totalRead} bytes");
-            }
-        }
-
-        private async Task Download(StoreItem storeItem)
-        {
-            string[] filePaths = storeItem.Files.ToArray();
-
-            string[] downloadUrls = storeItem.DownloadUrls.ToArray();
-
-            for (int i = 0; i < filePaths.Length; i++)
-            {
-                string filePath = filePaths[i];
-
-                string downloadUrl = downloadUrls[i];
-
-                string localPath = Path.Combine(_storageProvider.MMC, "Roms", "Apps", filePath);
-
-                await this.Download(filePath, downloadUrl, localPath);
-            }
-
-            _consoleRenderer.WriteLine();
-
-            _consoleRenderer.WriteLine("Download complete! Press any key to continue.", Color.Green, Color.Black);
-
-            _gamePadReader.ClearBuffer();
-
-            _gamePadReader.WaitForInput();
-        }
-
-        private string Enclose(string text)
-        {
-            if (text.Length > _consoleRenderer.Width - 2)
-            {
-                text = text[..(_consoleRenderer.Width - 2)];
-            }
-
-            text = "│" + text.PadRight(_consoleRenderer.Width - 2, ' ') + "│";
-
-            return text;
         }
     }
 }
