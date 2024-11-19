@@ -19,6 +19,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Release\**" />
+	  <EmbeddedResource Remove="Release\**" />
+	  <None Remove="Release\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="D:\Git\RG35XX.NET\RG35XX.Libraries\RG35XX.Libraries.csproj" />
 	</ItemGroup>
 

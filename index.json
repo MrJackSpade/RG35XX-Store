@@ -16,5 +16,14 @@
     "repo": "RG35XX-DVD",
     "branch": "main",
     "author": "MrJackSpade"
+  },
+  {
+    "root": "Release",
+    "files": [ "FPS" ],
+    "name": "FPS Tester",
+    "description": "Calculates FPS of device",
+    "repo": "RG35XX-FPS",
+    "branch": "main",
+    "author": "MrJackSpade"
   }
 ]

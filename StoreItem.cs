@@ -1,17 +1,25 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 
 namespace AppStore
 {
-    internal class StoreItem
+    [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
+    [JsonSerializable(typeof(StoreItem))]
+    [JsonSerializable(typeof(List<StoreItem>))] 
+    public partial class StoreItemContext : JsonSerializerContext
+    {
+    }
+
+    public class StoreItem()
     {
         [JsonPropertyName("author")]
-        public string Author { get; set; }
+        public required string Author { get; set; }
 
         [JsonPropertyName("branch")]
-        public string Branch { get; set; }
+        public required string Branch { get; set; }
 
         [JsonPropertyName("description")]
-        public string Description { get; set; }
+        public required string Description { get; set; }
 
         public IEnumerable<string> DownloadUrls
         {
@@ -25,16 +33,16 @@ namespace AppStore
         }
 
         [JsonPropertyName("files")]
-        public List<string> Files { get; set; } = [];
+        public required List<string> Files { get; set; } = [];
 
         [JsonPropertyName("name")]
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         [JsonPropertyName("repo")]
-        public string Repo { get; set; }
+        public required string Repo { get; set; }
 
         [JsonPropertyName("root")]
-        public string Root { get; set; }
+        public required string Root { get; set; }
 
         public string RootUrl => $"https://raw.githubusercontent.com/{Author}/{Repo}/refs/heads/{Branch}/{Root}";
     }

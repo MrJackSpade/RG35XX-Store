@@ -46,7 +46,9 @@ namespace AppStore
 
                 string jsonContent = await _httpClient.GetStringAsync(indexUrl);
 
-                List<StoreItem> items = JsonSerializer.Deserialize<List<StoreItem>>(jsonContent)!;
+                var options = new JsonSerializerOptions { TypeInfoResolver = StoreItemContext.Default };
+
+                List<StoreItem> items = JsonSerializer.Deserialize<List<StoreItem>>(jsonContent, options)!;
 
                 await this.DisplayStoreItems(items);
             }
@@ -54,7 +56,9 @@ namespace AppStore
             {
                 _consoleRenderer.WriteLine(ex.Message, Color.Red, Color.Black);
                 _consoleRenderer.WriteLine(ex.StackTrace, Color.Red, Color.Black);
+                _gamePadReader.ClearBuffer();
                 _gamePadReader.WaitForInput();
+                Environment.Exit(1);
             }
         }
 
@@ -73,7 +77,7 @@ namespace AppStore
             {
                 do
                 {
-                    _consoleRenderer.Clear();
+                    _consoleRenderer.Clear(false);
                     _gamePadReader.ClearBuffer();
 
                     _consoleRenderer.AutoFlush = false;
