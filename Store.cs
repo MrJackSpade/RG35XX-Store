@@ -71,7 +71,7 @@ namespace AppStore
 
             int pageSize = _consoleRenderer.Height / 4;
 
-            int startIndex = selectedIndex / pageSize;
+            int startIndex = (selectedIndex / pageSize) * pageSize;
 
             try
             {
@@ -82,7 +82,7 @@ namespace AppStore
 
                     _consoleRenderer.AutoFlush = false;
 
-                    for (int i = startIndex; i < i + pageSize; i++)
+                    for (int i = startIndex; i < startIndex + pageSize; i++)
                     {
                         if (i >= items.Count)
                         {
