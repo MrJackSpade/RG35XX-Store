@@ -1,5 +1,13 @@
 [
   {
+    "root": "Release/ARM-64",
+    "name": "XFCE Desktop",
+    "description": "XFCE Desktop Installer",
+    "repo": "RG35XXP-XFCE",
+    "branch": "main",
+    "author": "MrJackSpade"
+  },
+  {
     "root": "RG35XX.RomDownloader/Release",
     "files": [ "RomDownloader" ],
     "name": "Rom Downloader",
