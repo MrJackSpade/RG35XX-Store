@@ -1,37 +1,20 @@
 [
   {
-    "root": "Release/ARM-64",
     "name": "XFCE Desktop",
     "description": "XFCE Desktop Installer",
     "repo": "RG35XXP-XFCE",
     "branch": "main",
-    "author": "MrJackSpade"
-  },
-  {
-    "root": "RG35XX.RomDownloader/Release",
-    "files": [ "RomDownloader" ],
-    "name": "Rom Downloader",
-    "description": "Downloads ROMS to the device",
-    "repo": "RG35XX-Downloader",
-    "branch": "main",
-    "author": "MrJackSpade"
-  },
-  {
-    "root": "Release",
-    "files": [ "DVD" ],
-    "name": "DVD Logo",
-    "description": "Animated DVD Logo",
-    "repo": "RG35XX-DVD",
-    "branch": "main",
-    "author": "MrJackSpade"
-  },
-  {
-    "root": "Release",
-    "files": [ "FPS" ],
-    "name": "FPS Tester",
-    "description": "Calculates FPS of device",
-    "repo": "RG35XX-FPS",
-    "branch": "main",
-    "author": "MrJackSpade"
+    "author": "MrJackSpade",
+    "icon": "icon.png",
+    "architectures": [
+      {
+        "name": "ARM-64",
+        "root":"Release/ARM-64"
+      },
+      {
+        "name": "ARM-32",
+        "root": "Release/ARM-32"
+      }
+    ]
   }
 ]
