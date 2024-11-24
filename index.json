@@ -6,10 +6,11 @@
     "branch": "main",
     "author": "MrJackSpade",
     "icon": "icon.png",
+    "entrypoint": "RG35XX-XFCE",
     "architectures": [
       {
         "name": "ARM-64",
-        "root":"Release/ARM-64"
+        "root": "Release/ARM-64"
       },
       {
         "name": "ARM-32",
