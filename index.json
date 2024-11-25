@@ -6,7 +6,8 @@
     "branch": "main",
     "author": "MrJackSpade",
     "icon": "icon.png",
-    "entrypoint": "RG35XX-XFCE",
+    "installer": "RG35XX-XFCE",
+    "launcher": "XFCE.sh",
     "architectures": [
       {
         "name": "ARM-64",
