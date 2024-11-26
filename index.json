@@ -6,7 +6,7 @@
     "branch": "main",
     "author": "MrJackSpade",
     "icon": "icon.png",
-    "launcher": "RG35XX-Downloader",
+    "launcher": "Downloader",
     "architectures": [
       {
         "name": "ARM-64",
