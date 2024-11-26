@@ -1,5 +1,24 @@
 [
   {
+    "name": "shiTTY",
+    "description": "The worlds worst terminal emulator",
+    "repo": "RG35XX-shiTTY",
+    "branch": "main",
+    "author": "MrJackSpade",
+    "icon": "icon.png",
+    "launcher": "shiTTY",
+    "architectures": [
+      {
+        "name": "ARM-64",
+        "root": "Release/ARM-64"
+      },
+      {
+        "name": "ARM-32",
+        "root": "Release/ARM-32"
+      }
+    ]
+  },
+  {
     "name": "ROM Downloader",
     "description": "A standalone application for installing ROMS",
     "repo": "RG35XX-Downloader",
