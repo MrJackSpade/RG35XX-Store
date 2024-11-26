@@ -1,5 +1,24 @@
 [
   {
+    "name": "ROM Downloader",
+    "description": "A standalone application for installing ROMS",
+    "repo": "RG35XX-Downloader",
+    "branch": "main",
+    "author": "MrJackSpade",
+    "icon": "icon.png",
+    "launcher": "RG35XX-Downloader",
+    "architectures": [
+      {
+        "name": "ARM-64",
+        "root": "Release/ARM-64"
+      },
+      {
+        "name": "ARM-32",
+        "root": "Release/ARM-32"
+      }
+    ]
+  },
+  {
     "name": "XFCE Desktop",
     "description": "XFCE Desktop Installer",
     "repo": "RG35XXP-XFCE",

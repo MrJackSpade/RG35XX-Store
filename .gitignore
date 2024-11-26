@@ -1,5 +1,2 @@
-*.user
-.vs
-bin
-obj
-*.pdb
+.vs/
+PackageCreator/
