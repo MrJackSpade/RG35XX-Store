@@ -25,7 +25,7 @@
     "branch": "main",
     "author": "MrJackSpade",
     "icon": "icon.png",
-    "launcher": "Downloader",
+    "launcher": "RomDownloader",
     "architectures": [
       {
         "name": "ARM-64",
