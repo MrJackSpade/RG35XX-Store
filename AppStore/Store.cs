@@ -11,7 +11,7 @@ namespace AppStore
     {
         private const string REMOTE_PATH = "https://raw.githubusercontent.com/MrJackSpade/RG35XX-Store/refs/heads/main/Release/{0}/AppStore";
 
-        private const string APP_VERSION = "1.0.4";
+        private const string APP_VERSION = "1.1.0";
 
         private static readonly JsonSerializerOptions jsonSerializerOptions = new() { TypeInfoResolver = StoreItemContext.Default };
 
@@ -30,6 +30,8 @@ namespace AppStore
         private readonly StorageProvider _storageProvider;
 
         private readonly Func<string, Task<string>> GetFile;
+
+        private bool _isOnline;
 
         public Store()
         {
@@ -57,13 +59,18 @@ namespace AppStore
         {
             _application.Execute();
 
+            _isOnline = await _deviceInfo.IsInternetConnected();
+
             try
             {
-                string version = await GetFile("version");
-
-                if (version != APP_VERSION)
+                if (_isOnline)
                 {
-                    await this.UpdateAppStore();
+                    string version = await GetFile("version");
+
+                    if (version != APP_VERSION)
+                    {
+                        await this.UpdateAppStore();
+                    }
                 }
 
                 if (!_appLauncher.IsDmenuLnPatched())
@@ -154,9 +161,20 @@ namespace AppStore
 
         private async Task<string> GetPublicFile(string fileName)
         {
+            string cachePath = Path.Combine(AppContext.BaseDirectory, "AppStoreData", fileName);
+
+            if (!_isOnline)
+            {
+                return File.ReadAllText(cachePath);
+            }
+
             string indexUrl = $"https://raw.githubusercontent.com/MrJackSpade/RG35XX-Store/refs/heads/main/{fileName}?cache_buster={DateTime.Now.Ticks}";
 
-            return await _httpClient.GetStringAsync(indexUrl);
+            string json = await _httpClient.GetStringAsync(indexUrl);
+
+            await File.WriteAllTextAsync(cachePath, json);
+
+            return json;
         }
 
         private void ItemListPage_OnItemSelected(object? sender, StoreItem item)
@@ -165,14 +183,17 @@ namespace AppStore
 
             detailsPage.SetDetails(null);
 
-            Task task = Task.Run(async () =>
+            if (_isOnline)
             {
-                GitRemoteReader remoteReader = new(item.Author, item.Repo, item.Architectures[0].Root, item.Branch);
+                Task task = Task.Run(async () =>
+                {
+                    GitRemoteReader remoteReader = new(item.Author, item.Repo, item.Architectures[0].Root, item.Branch);
 
-                GitCommitInfo? commitInfo = await remoteReader.GetCommitInfoAsync();
+                    GitCommitInfo? commitInfo = await remoteReader.GetCommitInfoAsync();
 
-                detailsPage.SetDetails(commitInfo);
-            });
+                    detailsPage.SetDetails(commitInfo);
+                });
+            }
 
             _application.OpenPage(detailsPage);
         }
