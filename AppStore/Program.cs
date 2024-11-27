@@ -6,8 +6,6 @@ namespace AppStore
     {
         private static async Task Main(string[] args)
         {
-            await Utilities.CorrectSystemTime();
-
             Store store = new();
 
             await store.Execute();

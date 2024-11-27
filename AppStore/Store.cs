@@ -11,7 +11,7 @@ namespace AppStore
     {
         private const string REMOTE_PATH = "https://raw.githubusercontent.com/MrJackSpade/RG35XX-Store/refs/heads/main/Release/{0}/AppStore";
 
-        private const string APP_VERSION = "1.1.0";
+        private const string APP_VERSION = "1.1.2";
 
         private static readonly JsonSerializerOptions jsonSerializerOptions = new() { TypeInfoResolver = StoreItemContext.Default };
 
@@ -51,7 +51,7 @@ namespace AppStore
 #if DEBUG
             GetFile = this.GetPrivateFile;
 #else
-            GetFile = GetPublicFile;
+            GetFile = this.GetPublicFile;
 #endif
         }
 
@@ -65,6 +65,8 @@ namespace AppStore
             {
                 if (_isOnline)
                 {
+                    await Utilities.CorrectSystemTime();
+
                     string version = await GetFile("version");
 
                     if (version != APP_VERSION)
