@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> There is no payment functionality nor plans to introduce any. I just couldn't think of a better name
+
 ## Installation
 
 1. Grab the appropriate (ARM-64) `AppStore` binary from the Releases directory, and place it in the `Roms/APPS` directory of your SD card.
