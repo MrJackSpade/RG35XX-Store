@@ -232,7 +232,7 @@ namespace AppStore.Pages
 
             openPath = $"\"{openPath}\"";
 
-            Task t = Task.Run(() => _application.ShowDialog(new Alert("Launching", "Please wait...")));
+            Task t = Task.Run(() => _application.ShowDialog(new Alert("Launching", "Please wait...", false)));
 
             _appLauncher.LaunchAndExit(openPath);
         }
@@ -287,7 +287,7 @@ namespace AppStore.Pages
 
             _actionButton = new()
             {
-                Bounds = new Bounds(.5f, 1 - 0.1f, .5f, 0.1f),
+                Bounds = new Bounds(.5f, 0.9f, .5f, 0.1f),
                 Text = "Install",
                 IsSelectable = true
             };
@@ -305,7 +305,7 @@ namespace AppStore.Pages
 
             _actionButton = new()
             {
-                Bounds = new Bounds(.5f, 1 - 0.1f, .5f, 0.1f),
+                Bounds = new Bounds(.5f, 0.9f, .5f, 0.1f),
                 Text = "Open",
                 IsSelectable = true
             };
@@ -323,7 +323,7 @@ namespace AppStore.Pages
 
             _updateButton = new()
             {
-                Bounds = new Bounds(.0f, 1 - 0.1f, .5f, 0.1f),
+                Bounds = new Bounds(.0f, 0.9f, .5f, 0.1f),
                 Text = "Update",
                 IsSelectable = true
             };

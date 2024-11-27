@@ -11,7 +11,7 @@ namespace AppStore
     {
         private const string REMOTE_PATH = "https://raw.githubusercontent.com/MrJackSpade/RG35XX-Store/refs/heads/main/Release/{0}/AppStore";
 
-        private const string APP_VERSION = "1.0.3";
+        private const string APP_VERSION = "1.0.4";
 
         private static readonly JsonSerializerOptions jsonSerializerOptions = new() { TypeInfoResolver = StoreItemContext.Default };
 
