@@ -3,7 +3,6 @@ using AppStore.Models;
 using AppStore.Pages;
 using RG35XX.Libraries;
 using RG35XX.Libraries.Dialogs;
-using System.Diagnostics;
 using System.Text.Json;
 
 namespace AppStore
@@ -12,7 +11,7 @@ namespace AppStore
     {
         private const string REMOTE_PATH = "https://raw.githubusercontent.com/MrJackSpade/RG35XX-Store/refs/heads/main/Release/{0}/AppStore";
 
-        private const string APP_VERSION = "1.0.1";
+        private const string APP_VERSION = "1.0.2";
 
         private static readonly JsonSerializerOptions jsonSerializerOptions = new() { TypeInfoResolver = StoreItemContext.Default };
 
@@ -58,9 +57,14 @@ namespace AppStore
         {
             _application.Execute();
 
+            File.AppendAllText("/AppStore.log", "AppStore started\n");
+
             try
             {
                 string version = await GetFile("version");
+
+                File.AppendAllText("/AppStore.log", $"Remote Version: {version}\n");
+                File.AppendAllText("/AppStore.log", $"Local Version: {APP_VERSION}\n");
 
                 if (version != APP_VERSION)
                 {
@@ -85,6 +89,7 @@ namespace AppStore
             catch (Exception ex)
             {
                 await _application.ShowDialog(new Alert("Error", ex.ToString()));
+                File.AppendAllText("/AppStore.log", ex.ToString() + "\n");
                 Environment.Exit(1);
             }
 
@@ -121,16 +126,16 @@ namespace AppStore
 
                 string downloadUrl = string.Format(REMOTE_PATH, new DeviceInfo().GetArchitecture());
 
-                Process p = Process.Start($"wget -O \"{appPath}\" {downloadUrl}");
+                string command = $"wget -O \"{appPath}\" {downloadUrl}; \"{appPath}\"";
 
                 Task t = Task.Run(() => _application.ShowDialog(new Alert("Updating", "The application will restart when the download is complete")));
 
-                p.WaitForExit();
-
-                new AppLauncher().LaunchAndExit(appPath);
+                new AppLauncher().LaunchAndExit(command);
             }
             else
             {
+                File.AppendAllText("/AppStore.log", "Update rejected");
+
                 System.Environment.Exit(1);
             }
         }
