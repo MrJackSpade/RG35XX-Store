@@ -12,12 +12,12 @@ namespace AppStore.Pages
     {
         public event EventHandler<StoreItem>? OnItemSelected;
 
-        public ItemListPage(IEnumerable<StoreItem> items)
+        public ItemListPage(IEnumerable<StoreItem> items, string version)
         {
             Window iconWindow = new()
             {
                 Bounds = new Bounds(0, 0, 1, 1),
-                Title = "App Store",
+                Title = $"App Store {version}",
             };
 
             this.AddControl(iconWindow);

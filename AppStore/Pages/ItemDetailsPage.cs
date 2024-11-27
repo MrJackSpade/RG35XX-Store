@@ -5,6 +5,7 @@ using RG35XX.Core.Drawing;
 using RG35XX.Core.GamePads;
 using RG35XX.Libraries;
 using RG35XX.Libraries.Controls;
+using RG35XX.Libraries.Dialogs;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -19,6 +20,8 @@ namespace AppStore.Pages
         private readonly StoreItem _storeItem;
 
         private Button _actionButton;
+
+        private Button _updateButton;
 
         private Control _detailsPane;
 
@@ -94,8 +97,35 @@ namespace AppStore.Pages
             }
         }
 
-        public void SetDetails(GitCommitInfo commitInfo)
+        public void SetDetails(GitCommitInfo? commitInfo)
         {
+            if (File.Exists(_appMetaPath))
+            {
+                string appMeta = File.ReadAllText(_appMetaPath);
+
+                _appMeta = JsonSerializer.Deserialize<AppMeta>(appMeta, _jsonSerializerOptions);
+            }
+
+            string updatedDisplay = "Connecting to Git...";
+
+            if (commitInfo is null)
+            {
+                commitInfo = _appMeta?.CommitInfo;
+            } else
+            {
+                updatedDisplay = $"{commitInfo.CommitDate:yyyy-MM-dd HH:mm:ss}";
+
+                if(_appMeta is not null && _appMeta.CommitInfo.CommitDate < commitInfo.CommitDate)
+                {
+                    this.SetUpdate();
+                }
+            }
+
+            if(commitInfo is null)
+            {
+                return;
+            }
+
             _gitCommitInfo = commitInfo;
 
             _screenshots = commitInfo.Files.Where(f => f.Path.StartsWith("Screenshots/") && f.Path.EndsWith(".png")).Select(f => f.Path).ToList();
@@ -133,20 +163,13 @@ namespace AppStore.Pages
                 Description: {_storeItem.Description}
                 Size: {commitInfo.TotalSize.ToFileSizeString()}
                 Files: {commitInfo.FileCount}
-                Last Update: {commitInfo.CommitDate:yyyy-MM-dd HH:mm:ss}
+                Last Update: {updatedDisplay}
                 """,
                 IsSelectable = false,
                 BackgroundColor = FormColors.ControlLight
             };
 
             this.AddControl(_detailsPane);
-
-            if(File.Exists(_appMetaPath))
-            {
-                string appMeta = File.ReadAllText(_appMetaPath);
-
-                _appMeta = JsonSerializer.Deserialize<AppMeta>(appMeta, _jsonSerializerOptions);
-            }
 
             if (_appMeta is null)
             {
@@ -192,6 +215,11 @@ namespace AppStore.Pages
                 }
 
                 this.SetOpen();
+
+                if(_updateButton is not null)
+                {
+                    this.RemoveControl(_updateButton);
+                }
             } catch(Exception ex)
             {
                 //TODO: Alert
@@ -203,6 +231,8 @@ namespace AppStore.Pages
             string openPath = Path.Combine(_installPath, "AppData", _storeItem.Launcher);
 
             openPath = $"\"{openPath}\"";
+
+            Task t = Task.Run(() => _application.ShowDialog(new Alert("Launching", "Please wait...")));
 
             _appLauncher.LaunchAndExit(openPath);
         }
@@ -257,7 +287,7 @@ namespace AppStore.Pages
 
             _actionButton = new()
             {
-                Bounds = new Bounds(.8f, 1 - 0.05f, .2f, 0.05f),
+                Bounds = new Bounds(.5f, 1 - 0.1f, .5f, 0.1f),
                 Text = "Install",
                 IsSelectable = true
             };
@@ -275,13 +305,31 @@ namespace AppStore.Pages
 
             _actionButton = new()
             {
-                Bounds = new Bounds(.8f, 1 - 0.05f, .2f, 0.05f),
+                Bounds = new Bounds(.5f, 1 - 0.1f, .5f, 0.1f),
                 Text = "Open",
                 IsSelectable = true
             };
 
             _actionButton.Click += this.OpenButton_Click;
             this.AddControl(_actionButton);
+        }
+
+        private void SetUpdate()
+        {
+            if (_updateButton is not null)
+            {
+                this.RemoveControl(_updateButton);
+            }
+
+            _updateButton = new()
+            {
+                Bounds = new Bounds(.0f, 1 - 0.1f, .5f, 0.1f),
+                Text = "Update",
+                IsSelectable = true
+            };
+
+            _updateButton.Click += this.InstallButton_Click;
+            this.AddControl(_updateButton);
         }
     }
 }
