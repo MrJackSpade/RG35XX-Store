@@ -61,6 +61,8 @@ namespace AppStore
 
             _isOnline = await _deviceInfo.IsInternetConnected();
 
+            File.AppendAllText("/tmp/AppStore.log", $"Online: {_isOnline}\n");
+
             try
             {
                 if (_isOnline)
@@ -92,6 +94,8 @@ namespace AppStore
             }
             catch (Exception ex)
             {
+                File.AppendAllText("/tmp/AppStore.log", ex.ToString() + "\n");
+
                 await _application.ShowDialog(new Alert("Error", ex.ToString()));
 
                 throw;
@@ -163,10 +167,12 @@ namespace AppStore
 
         private async Task<string> GetPublicFile(string fileName)
         {
+            File.AppendAllText("/tmp/AppStore.log", $"Getting {fileName}\n");
             string cachePath = Path.Combine(AppContext.BaseDirectory, "AppStoreData", fileName);
 
             if (!_isOnline)
             {
+                File.AppendAllText("/tmp/AppStore.log", $"Reading {cachePath}\n");
                 return File.ReadAllText(cachePath);
             }
 
@@ -174,6 +180,14 @@ namespace AppStore
 
             string json = await _httpClient.GetStringAsync(indexUrl);
 
+            FileInfo fileInfo = new(cachePath);
+
+            if(!fileInfo.Directory.Exists)
+            {
+                fileInfo.Directory.Create();
+            }
+
+            File.AppendAllText("/tmp/AppStore.log", $"Writing {cachePath}\n");
             await File.WriteAllTextAsync(cachePath, json);
 
             return json;
